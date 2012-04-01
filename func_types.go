@@ -20,3 +20,10 @@ func (l LoaderFunc) Load(in map[string]interface{}) (out interface{}, errs map[s
 	out, errs, err = l(in)
 	return
 }
+
+//Assert that our Funcs are of the correct interface type
+var (
+	_ Loader    = LoaderFunc(nil)
+	_ Converter = ConverterFunc(nil)
+	_ Validator = ValidatorFunc(nil)
+)
