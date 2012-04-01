@@ -69,7 +69,8 @@ type Field struct {
 	Converter     Converter
 }
 
-//Validate runs all of the validators on a value and
+//Validate runs all of the validators on a value, exiting if any of the
+//validators return an error.
 func (f *Field) Validate(in string) (final string, err error) {
 	final = in
 	for _, v := range f.Validators {
