@@ -10,7 +10,7 @@ import (
 var (
 	converter_error = errors.New("converter_error")
 
-	int_converter ConverterFunc = func(in string) (out interface{}, err error) {
+	test_int_converter ConverterFunc = func(in string) (out interface{}, err error) {
 		out = 2
 		return
 	}
@@ -32,7 +32,7 @@ func fatal_converter(t *testing.T) ConverterFunc {
 func TestConverterInt(t *testing.T) {
 	f := &Form{
 		Fields: []Field{
-			{Name: "foo", Converter: int_converter},
+			{Name: "foo", Converter: test_int_converter},
 		},
 	}
 	res := f.Load(create_req(url.Values{
