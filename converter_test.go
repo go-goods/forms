@@ -2,6 +2,7 @@ package forms
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"testing"
 )
@@ -73,4 +74,62 @@ func TestConverterNotCalledOnValidatorError(t *testing.T) {
 	f.Load(create_req(url.Values{
 		"foo": {"bar"},
 	}))
+}
+
+//test specific converters
+func TestConvertersIntConverter(t *testing.T) {
+	f := &Form{
+		Fields: []Field{
+			{Name: "foo", Converter: IntConverter},
+		},
+	}
+	for i := -10; i <= 10; i++ {
+		res := f.Load(create_req(url.Values{
+			"foo": {fmt.Sprint(i)},
+		}))
+		if ex, ok := res.Errors["foo"]; ok || ex != nil {
+			t.Errorf("Expected %v. Got %v", nil, ex)
+			continue
+		}
+		rval := res.Value.(map[string]interface{})
+		if ex, ok := rval["foo"].(int); !ok || ex != i {
+			t.Errorf("Expected %v. Got %v", i, ex)
+		}
+	}
+}
+
+func TestConvertersFloat32Converter(t *testing.T) {
+	f := &Form{
+		Fields: []Field{
+			{Name: "foo", Converter: Float32Converter},
+		},
+	}
+	res := f.Load(create_req(url.Values{
+		"foo": {"3.14159"},
+	}))
+	if ex, ok := res.Errors["foo"]; ok || ex != nil {
+		t.Fatalf("Expected %v. Got %v", nil, ex)
+	}
+	rval := res.Value.(map[string]interface{})
+	if ex, ok := rval["foo"].(float32); !ok || ex != 3.14159 {
+		t.Fatalf("Expected %v. Got %v", 3.14159, ex)
+	}
+}
+
+func TestConvertersFloat64Converter(t *testing.T) {
+	f := &Form{
+		Fields: []Field{
+			{Name: "foo", Converter: Float64Converter},
+		},
+	}
+	res := f.Load(create_req(url.Values{
+		"foo": {"3.14159"},
+	}))
+	if ex, ok := res.Errors["foo"]; ok || ex != nil {
+		t.Fatalf("Expected %v. Got %v", nil, ex)
+	}
+	rval := res.Value.(map[string]interface{})
+	if ex, ok := rval["foo"].(float64); !ok || ex != 3.14159 {
+		t.Fatalf("Expected %v. Got %v", 3.14159, ex)
+	}
 }

@@ -138,3 +138,29 @@ func TestValidatorEmpty(t *testing.T) {
 		t.Fatalf("Expected %v. Got %v", "bar", ex)
 	}
 }
+
+func TestValidatorsNonemptyValidator(t *testing.T) {
+	f := &Form{
+		Fields: []Field{
+			{Name: "foo", Validators: []Validator{NonemptyValidator}},
+		},
+	}
+	res := f.Load(create_req(url.Values{
+		"foo": {"bar"},
+	}))
+	if ex, ok := res.Errors["foo"]; ok || ex != nil {
+		t.Fatalf("Expected %v. Got %v", nil, ex)
+	}
+
+	res = f.Load(create_req(url.Values{
+		"foo": {""},
+	}))
+	if ex, ok := res.Errors["foo"]; !ok || ex == nil {
+		t.Fatalf("Expected %v. Got %v", "not nil", ex)
+	}
+
+	res = f.Load(create_req(nil))
+	if ex, ok := res.Errors["foo"]; !ok || ex == nil {
+		t.Fatalf("Expected %v. Got %v", "not nil", ex)
+	}
+}
