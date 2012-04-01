@@ -1,14 +1,12 @@
 package forms
 
-import (
-	"fmt"
-	"net/http"
-)
+import "net/http"
 
 type Result struct {
 	Value  interface{}
 	Values map[string]string
 	Errors map[string]error
+	Err    error
 }
 
 type Form struct {
@@ -16,21 +14,15 @@ type Form struct {
 	Loader Loader
 }
 
-func (f *Form) Load(req *http.Request) (r Result, err error) {
-	defer func() {
-		if e := recover(); e != nil {
-			err = fmt.Errorf("load: %v", e)
-		}
-	}()
-
-	r = Result{
+func (f *Form) Load(req *http.Request) (r *Result) {
+	//set up map for errors, values in from the form, and converted values
+	r = &Result{
 		Values: map[string]string{},
 		Errors: map[string]error{},
 	}
-
-	//set up map for errors, values in from the form, and converted values
 	conv := map[string]interface{}{}
 
+fields:
 	for _, fi := range f.Fields {
 		//grab the value for the field and store it
 		in := req.FormValue(fi.Name)
@@ -40,17 +32,20 @@ func (f *Form) Load(req *http.Request) (r Result, err error) {
 		val, err := fi.Validate(in)
 		if err != nil {
 			r.Errors[fi.Name] = err
-			continue
+			continue fields
 		}
 
-		//convert the value
-		c, err := fi.Converter.Convert(val)
-		if err != nil {
-			r.Errors[fi.Name] = err
-			continue
+		//convert the value if we have a converter and store the value
+		if fi.Converter != nil {
+			c, err := fi.Converter.Convert(val)
+			if err != nil {
+				r.Errors[fi.Name] = err
+				continue fields
+			}
+			conv[fi.Name] = c
+		} else {
+			conv[fi.Name] = val
 		}
-		//store the converted value
-		conv[fi.Name] = c
 	}
 
 	//if we got any errors dont try to load in a value
@@ -58,8 +53,14 @@ func (f *Form) Load(req *http.Request) (r Result, err error) {
 		return
 	}
 
-	//load in the value and perform any final validations
-	r.Value, r.Errors = f.Loader.Load(conv)
+	//If we have a loader, run it, otherwise just return the map of converted
+	//values
+	if f.Loader != nil {
+		r.Value, r.Errors, r.Err = f.Loader.Load(conv)
+	} else {
+		r.Value = conv
+	}
+
 	return
 }
 
@@ -91,26 +92,5 @@ type Converter interface {
 }
 
 type Loader interface {
-	Load(in map[string]interface{}) (interface{}, map[string]error)
-}
-
-type ValidatorFunc func(string) (string, error)
-
-func (v ValidatorFunc) Validate(in string) (out string, err error) {
-	out, err = v(in)
-	return
-}
-
-type ConverterFunc func(string) (interface{}, error)
-
-func (c ConverterFunc) Convert(in string) (out interface{}, err error) {
-	out, err = c(in)
-	return
-}
-
-type LoaderFunc func(map[string]interface{}) (interface{}, map[string]error)
-
-func (l LoaderFunc) Load(in map[string]interface{}) (out interface{}, errs map[string]error) {
-	out, errs = l(in)
-	return
+	Load(in map[string]interface{}) (interface{}, map[string]error, error)
 }
