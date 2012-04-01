@@ -8,19 +8,19 @@ import (
 )
 
 var (
-	always_fail_err = errors.New("always_fail")
+	validator_error = errors.New("validator_error")
 
-	always_fail ValidatorFunc = func(in string) (out string, err error) {
-		err = always_fail_err
+	error_validator ValidatorFunc = func(in string) (out string, err error) {
+		err = validator_error
 		return
 	}
-	always_valid ValidatorFunc = func(in string) (out string, err error) {
+	pass_validator ValidatorFunc = func(in string) (out string, err error) {
 		out = in
 		return
 	}
 )
 
-func fail_if_called(t *testing.T) ValidatorFunc {
+func fatal_validator(t *testing.T) ValidatorFunc {
 	return func(in string) (out string, err error) {
 		t.Fail()
 		out = in
@@ -49,7 +49,7 @@ func TestValidatorFails(t *testing.T) {
 		Fields: []Field{
 			{
 				Name:       "foo",
-				Validators: []Validator{always_fail},
+				Validators: []Validator{error_validator},
 			},
 		},
 	}
@@ -57,8 +57,8 @@ func TestValidatorFails(t *testing.T) {
 		"foo": {"bar"},
 	}))
 
-	if ex, ok := res.Errors["foo"]; !ok || ex != always_fail_err {
-		t.Fatalf("Expected %v. Got %v", always_fail_err, ex)
+	if ex, ok := res.Errors["foo"]; !ok || ex != validator_error {
+		t.Fatalf("Expected %v. Got %v", validator_error, ex)
 	}
 	if ex, ok := res.Values["foo"]; !ok || ex != "bar" {
 		t.Fatalf("Expected %v. Got %v", "bar", ex)
@@ -70,7 +70,7 @@ func TestValidatorFailsChain(t *testing.T) {
 		Fields: []Field{
 			{
 				Name:       "foo",
-				Validators: []Validator{always_valid, always_valid, always_fail},
+				Validators: []Validator{pass_validator, pass_validator, error_validator},
 			},
 		},
 	}
@@ -78,8 +78,8 @@ func TestValidatorFailsChain(t *testing.T) {
 		"foo": {"bar"},
 	}))
 
-	if ex, ok := res.Errors["foo"]; !ok || ex != always_fail_err {
-		t.Fatalf("Expected %v. Got %v", always_fail_err, ex)
+	if ex, ok := res.Errors["foo"]; !ok || ex != validator_error {
+		t.Fatalf("Expected %v. Got %v", validator_error, ex)
 	}
 	if ex, ok := res.Values["foo"]; !ok || ex != "bar" {
 		t.Fatalf("Expected %v. Got %v", "bar", ex)
@@ -112,7 +112,7 @@ func TestValidatorEarlyExit(t *testing.T) {
 		Fields: []Field{
 			{
 				Name:       "foo",
-				Validators: []Validator{always_fail, fail_if_called(t)},
+				Validators: []Validator{error_validator, fatal_validator(t)},
 			},
 		},
 	}

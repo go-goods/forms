@@ -14,9 +14,9 @@ func (c ConverterFunc) Convert(in string) (out interface{}, err error) {
 	return
 }
 
-type LoaderFunc func(map[string]interface{}) (interface{}, map[string]error)
+type LoaderFunc func(map[string]interface{}) (interface{}, map[string]error, error)
 
-func (l LoaderFunc) Load(in map[string]interface{}) (out interface{}, errs map[string]error) {
-	out, errs = l(in)
+func (l LoaderFunc) Load(in map[string]interface{}) (out interface{}, errs map[string]error, err error) {
+	out, errs, err = l(in)
 	return
 }
