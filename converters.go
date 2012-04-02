@@ -6,6 +6,7 @@ import (
 )
 
 var (
+	//Some built in converters that return the type they suggest with any errors.
 	IntConverter     ConverterFunc = int_converter
 	Float64Converter ConverterFunc = float64_converter
 	Float32Converter ConverterFunc = float32_converter
