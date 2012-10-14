@@ -5,11 +5,16 @@ import (
 	"strconv"
 )
 
+const (
+	time_format = "1900-07-26"
+)
+
 var (
 	//Some built in converters that return the type they suggest with any errors.
 	IntConverter     ConverterFunc = int_converter
 	Float64Converter ConverterFunc = float64_converter
 	Float32Converter ConverterFunc = float32_converter
+	TimeConverter forms.ConverterFunc = time_converter
 )
 
 func make_human_readable(numerr *strconv.NumError) (err error) {
@@ -55,5 +60,18 @@ func float32_converter(in string) (out interface{}, err error) {
 		return
 	}
 	out = float32(f)
+	return
+}
+
+func time_converter(in string) (out interface{}, err error) {
+	//parse the input
+	t, err := time.Parse(time_format, in)
+
+	if err != nil {
+		return nil, errors.New("Invalid time: YYYY-MM-DD")
+	}
+
+	//set our output
+	out = t
 	return
 }
