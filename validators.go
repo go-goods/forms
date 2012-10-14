@@ -1,12 +1,16 @@
 package forms
 
-import "errors"
+import (
+	"errors"
+	"regexp"
+	"time"
+)
 
 var (
 	//Some built in validators that do what you would expect.
 	NonemptyValidator ValidatorFunc = nonempty_validator
-	DateValidator forms.ValidatorFunc = date_validator
-	EmailValidator forms.ValidatorFunc = email_validator
+	DateValidator     ValidatorFunc = date_validator
+	EmailValidator    ValidatorFunc = email_validator
 )
 
 func nonempty_validator(in string) (out string, err error) {
@@ -18,7 +22,7 @@ func nonempty_validator(in string) (out string, err error) {
 }
 
 func date_validator(in string) (string, error) {
-	_, err := time.Parse(TIME_FORMAT, in)
+	_, err := time.Parse(time_format, in)
 	if err != nil {
 		return in, errors.New("Invalid date")
 	}

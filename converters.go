@@ -3,6 +3,7 @@ package forms
 import (
 	"errors"
 	"strconv"
+	"time"
 )
 
 const (
@@ -14,7 +15,7 @@ var (
 	IntConverter     ConverterFunc = int_converter
 	Float64Converter ConverterFunc = float64_converter
 	Float32Converter ConverterFunc = float32_converter
-	TimeConverter forms.ConverterFunc = time_converter
+	TimeConverter    ConverterFunc = time_converter
 )
 
 func make_human_readable(numerr *strconv.NumError) (err error) {
