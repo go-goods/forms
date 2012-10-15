@@ -73,6 +73,6 @@ func time_converter(in string) (out interface{}, err error) {
 	}
 
 	//set our output
-	out = t
+	out = time.Time(t)
 	return
 }
