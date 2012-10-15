@@ -31,7 +31,7 @@ func date_validator(in string) (string, error) {
 
 // vague email validator (better then nothing)
 func email_validator(in string) (string, error) {
-	ok, err := regexp.MatchString(`<?\S+@\S+?>?`, in)
+	ok, err := regexp.MatchString(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`, in)
 
 	if err != nil {
 		return in, err

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	time_format = "1900-07-26"
+	time_format = "2006-01-02"
 )
 
 var (

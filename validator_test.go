@@ -164,3 +164,55 @@ func TestValidatorsNonemptyValidator(t *testing.T) {
 		t.Fatalf("Expected %v. Got %v", "not nil", ex)
 	}
 }
+
+func TestValidatorsTimeValidator(t *testing.T) {
+	f := &Form{
+		Fields: []Field{
+			{Name: "foo", Validators: []Validator{DateValidator}},
+		},
+	}
+	res := f.Load(create_req(url.Values{
+		"foo": {"2010-10-26"},
+	}))
+	if ex, ok := res.Errors["foo"]; ok || ex != nil {
+		t.Fatalf("Expected %v. Got %v", nil, ex)
+	}
+
+	res = f.Load(create_req(url.Values{
+		"foo": {""},
+	}))
+	if ex, ok := res.Errors["foo"]; !ok || ex == nil {
+		t.Fatalf("Expected %v. Got %v", "not nil", ex)
+	}
+
+	res = f.Load(create_req(nil))
+	if ex, ok := res.Errors["foo"]; !ok || ex == nil {
+		t.Fatalf("Expected %v. Got %v", "not nil", ex)
+	}
+}
+
+func TestValidatorsEmailValidator(t *testing.T) {
+	f := &Form{
+		Fields: []Field{
+			{Name: "foo", Validators: []Validator{EmailValidator}},
+		},
+	}
+	res := f.Load(create_req(url.Values{
+		"foo": {"test@test.te"},
+	}))
+	if ex, ok := res.Errors["foo"]; ok || ex != nil {
+		t.Fatalf("Expected %v. Got %v", nil, ex)
+	}
+
+	res = f.Load(create_req(url.Values{
+		"foo": {""},
+	}))
+	if ex, ok := res.Errors["foo"]; !ok || ex == nil {
+		t.Fatalf("Expected %v. Got %v", "not nil", ex)
+	}
+
+	res = f.Load(create_req(nil))
+	if ex, ok := res.Errors["foo"]; !ok || ex == nil {
+		t.Fatalf("Expected %v. Got %v", "not nil", ex)
+	}
+}

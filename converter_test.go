@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"testing"
+	"time"
 )
 
 var (
@@ -131,5 +132,24 @@ func TestConvertersFloat64Converter(t *testing.T) {
 	rval := res.Value.(map[string]interface{})
 	if ex, ok := rval["foo"].(float64); !ok || ex != 3.14159 {
 		t.Fatalf("Expected %v. Got %v", 3.14159, ex)
+	}
+}
+
+func TestConvertersTimeConverter(t *testing.T) {
+	f := &Form{
+		Fields: []Field{
+			{Name: "foo", Converter: TimeConverter},
+		},
+	}
+	res := f.Load(create_req(url.Values{
+		"foo": {"1978-07-10"},
+	}))
+	if ex, ok := res.Errors["foo"]; ok || ex != nil {
+		t.Fatalf("Expected %v. Got %v", nil, ex)
+	}
+	rval := res.Value.(map[string]interface{})
+	tm := time.Date(1978, 7, 10, 0, 0, 0, 0, time.UTC)
+	if ex, ok := rval["foo"].(time.Time); !ok || ex != tm {
+		t.Fatalf("Expected %v. Got %v", tm, ex)
 	}
 }
