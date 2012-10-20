@@ -16,6 +16,7 @@ var (
 	Float64Converter ConverterFunc = float64_converter
 	Float32Converter ConverterFunc = float32_converter
 	TimeConverter    ConverterFunc = time_converter
+	BoolConverter    ConverterFunc = bool_converter
 )
 
 func make_human_readable(numerr *strconv.NumError) (err error) {
@@ -73,6 +74,13 @@ func time_converter(in string) (out interface{}, err error) {
 	}
 
 	//set our output
-	out = time.Time(t)
+	out = t
 	return
+}
+
+func bool_converter(in string) (out interface{}, err error) {
+	if in == "on" {
+		return true, nil
+	}
+	return false, nil
 }

@@ -153,3 +153,22 @@ func TestConvertersTimeConverter(t *testing.T) {
 		t.Fatalf("Expected %v. Got %v", tm, ex)
 	}
 }
+
+func TestConvertersBoolConverter(t *testing.T) {
+	f := &Form{
+		Fields: []Field{
+			{Name: "foo", Converter: BoolConverter},
+		},
+	}
+	res := f.Load(create_req(url.Values{
+		"foo": {"on"},
+	}))
+	if ex, ok := res.Errors["foo"]; ok || ex != nil {
+		t.Fatalf("Expected %v. Got %v", nil, ex)
+	}
+	rval := res.Value.(map[string]interface{})
+	b := true
+	if ex, ok := rval["foo"].(bool); !ok || ex != b {
+		t.Fatalf("Expected %v. Got %v", b, ex)
+	}
+}
