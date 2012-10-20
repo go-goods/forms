@@ -3,6 +3,11 @@ package forms
 import (
 	"errors"
 	"strconv"
+	"time"
+)
+
+const (
+	time_format = "2006-01-02"
 )
 
 var (
@@ -10,6 +15,8 @@ var (
 	IntConverter     ConverterFunc = int_converter
 	Float64Converter ConverterFunc = float64_converter
 	Float32Converter ConverterFunc = float32_converter
+	TimeConverter    ConverterFunc = time_converter
+	BoolConverter    ConverterFunc = bool_converter
 )
 
 func make_human_readable(numerr *strconv.NumError) (err error) {
@@ -56,4 +63,24 @@ func float32_converter(in string) (out interface{}, err error) {
 	}
 	out = float32(f)
 	return
+}
+
+func time_converter(in string) (out interface{}, err error) {
+	//parse the input
+	t, err := time.Parse(time_format, in)
+
+	if err != nil {
+		return nil, errors.New("Invalid time: YYYY-MM-DD")
+	}
+
+	//set our output
+	out = t
+	return
+}
+
+func bool_converter(in string) (out interface{}, err error) {
+	if in == "on" {
+		return true, nil
+	}
+	return false, nil
 }
